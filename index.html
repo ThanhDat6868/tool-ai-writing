@@ -1,0 +1,404 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Writing Tool - Công cụ hỗ trợ viết nội dung</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{font-family:Arial,sans-serif}
+textarea{resize:vertical}
+.panel{background:white;border:1px solid #e2e8f0;border-radius:14px}
+.btn{padding:11px 17px;border-radius:9px;font-weight:600;transition:.2s}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+</style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+<header class="bg-gradient-to-r from-indigo-700 to-purple-700 text-white">
+ <div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="flex items-center gap-3">
+   <div class="bg-white/20 p-3 rounded-xl text-2xl">✍️</div>
+   <div>
+    <h1 class="text-2xl md:text-3xl font-bold">AI Writing Tool</h1>
+    <p class="text-indigo-100 mt-1">Trợ lý hỗ trợ viết nội dung miễn phí</p>
+   </div>
+  </div>
+  <p class="mt-5 text-indigo-100 max-w-2xl">
+   Tạo email, bài viết, caption và nội dung quảng cáo nhanh chóng với các mẫu viết thông minh.
+  </p>
+ </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-8">
+
+ <div class="grid lg:grid-cols-5 gap-6">
+
+  <!-- FORM -->
+  <section class="lg:col-span-2 panel p-5">
+   <h2 class="text-xl font-bold mb-5">Thông tin nội dung</h2>
+
+   <label class="block text-sm font-semibold mb-2">Loại nội dung</label>
+   <select id="contentType" class="w-full border rounded-lg p-3 mb-4 bg-white">
+    <option value="email">Email</option>
+    <option value="blog">Bài viết Blog</option>
+    <option value="social">Bài đăng mạng xã hội</option>
+    <option value="caption">Caption</option>
+    <option value="title">Tiêu đề</option>
+    <option value="product">Mô tả sản phẩm</option>
+   </select>
+
+   <label class="block text-sm font-semibold mb-2">Chủ đề / Sản phẩm</label>
+   <input id="topic" class="w-full border rounded-lg p-3 mb-4"
+    placeholder="Ví dụ: Giới thiệu cửa hàng quần áo">
+
+   <label class="block text-sm font-semibold mb-2">Từ khóa quan trọng</label>
+   <input id="keywords" class="w-full border rounded-lg p-3 mb-4"
+    placeholder="Ví dụ: giá rẻ, chất lượng, thời trang">
+
+   <label class="block text-sm font-semibold mb-2">Đối tượng người đọc</label>
+   <input id="audience" class="w-full border rounded-lg p-3 mb-4"
+    placeholder="Ví dụ: Sinh viên, nhân viên văn phòng">
+
+   <label class="block text-sm font-semibold mb-2">Phong cách viết</label>
+   <select id="tone" class="w-full border rounded-lg p-3 mb-4 bg-white">
+    <option value="professional">Chuyên nghiệp</option>
+    <option value="friendly">Thân thiện</option>
+    <option value="casual">Thông thường</option>
+    <option value="formal">Trang trọng</option>
+    <option value="funny">Hài hước</option>
+    <option value="persuasive">Thuyết phục</option>
+    <option value="educational">Giáo dục</option>
+   </select>
+
+   <label class="block text-sm font-semibold mb-2">Độ dài nội dung</label>
+   <select id="length" class="w-full border rounded-lg p-3 mb-4 bg-white">
+    <option value="short">Ngắn</option>
+    <option value="medium" selected>Trung bình</option>
+    <option value="long">Dài</option>
+   </select>
+
+   <label class="block text-sm font-semibold mb-2">Yêu cầu bổ sung</label>
+   <textarea id="extra" rows="3" class="w-full border rounded-lg p-3 mb-5"
+    placeholder="Ví dụ: Có lời kêu gọi mua hàng, sử dụng ngôn ngữ dễ hiểu..."></textarea>
+
+   <button id="generateBtn" class="btn w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+    ✨ Tạo nội dung
+   </button>
+
+   <p class="text-xs text-slate-500 mt-3 text-center">
+    Công cụ xử lý trực tiếp trên trình duyệt, không cần API.
+   </p>
+  </section>
+
+  <!-- RESULT -->
+  <section class="lg:col-span-3 panel p-5">
+   <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+    <h2 class="text-xl font-bold">Kết quả nội dung</h2>
+    <span id="wordCount" class="text-sm text-slate-500">0 từ</span>
+   </div>
+
+   <div id="emptyState" class="min-h-[400px] flex flex-col justify-center items-center text-center text-slate-400">
+    <div class="text-6xl mb-4">📝</div>
+    <h3 class="font-bold text-lg text-slate-600">Chưa có nội dung</h3>
+    <p class="text-sm mt-2">Nhập thông tin và nhấn Tạo nội dung để bắt đầu.</p>
+   </div>
+
+   <textarea id="result" rows="19"
+    class="hidden w-full border rounded-lg p-4 leading-7 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+    placeholder="Nội dung được tạo sẽ xuất hiện tại đây..."></textarea>
+
+   <div id="resultActions" class="hidden mt-4 flex flex-wrap gap-2">
+    <button id="copyBtn" class="btn bg-slate-800 hover:bg-slate-900 text-white">📋 Sao chép</button>
+    <button id="downloadBtn" class="btn bg-green-600 hover:bg-green-700 text-white">⬇ Tải xuống</button>
+    <button id="rewriteBtn" class="btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800">🔄 Viết lại</button>
+    <button id="expandBtn" class="btn bg-purple-100 hover:bg-purple-200 text-purple-800">➕ Mở rộng</button>
+    <button id="shortenBtn" class="btn bg-amber-100 hover:bg-amber-200 text-amber-800">➖ Rút gọn</button>
+   </div>
+
+   <div id="message" class="hidden mt-4 p-3 rounded-lg text-sm"></div>
+  </section>
+ </div>
+
+ <!-- FEATURES -->
+ <section class="mt-8">
+  <h2 class="text-xl font-bold mb-4">Công cụ hỗ trợ viết nội dung</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+   <div class="panel p-5">
+    <div class="text-3xl mb-2">📧</div>
+    <h3 class="font-bold">Viết Email</h3>
+    <p class="text-sm text-slate-500 mt-2">Hỗ trợ tạo email công việc, xin việc và trao đổi chuyên nghiệp.</p>
+   </div>
+   <div class="panel p-5">
+    <div class="text-3xl mb-2">📰</div>
+    <h3 class="font-bold">Viết Blog</h3>
+    <p class="text-sm text-slate-500 mt-2">Tạo bài viết theo chủ đề và bố cục rõ ràng.</p>
+   </div>
+   <div class="panel p-5">
+    <div class="text-3xl mb-2">📱</div>
+    <h3 class="font-bold">Mạng xã hội</h3>
+    <p class="text-sm text-slate-500 mt-2">Soạn bài đăng Facebook và nội dung truyền thông.</p>
+   </div>
+   <div class="panel p-5">
+    <div class="text-3xl mb-2">💬</div>
+    <h3 class="font-bold">Caption</h3>
+    <p class="text-sm text-slate-500 mt-2">Tạo câu chú thích ngắn gọn, thu hút người xem.</p>
+   </div>
+   <div class="panel p-5">
+    <div class="text-3xl mb-2">🎯</div>
+    <h3 class="font-bold">Tiêu đề</h3>
+    <p class="text-sm text-slate-500 mt-2">Gợi ý tiêu đề hấp dẫn cho bài viết và sản phẩm.</p>
+   </div>
+   <div class="panel p-5">
+    <div class="text-3xl mb-2">🛍️</div>
+    <h3 class="font-bold">Mô tả sản phẩm</h3>
+    <p class="text-sm text-slate-500 mt-2">Hỗ trợ giới thiệu sản phẩm và lợi ích nổi bật.</p>
+   </div>
+  </div>
+ </section>
+
+ <section class="panel p-5 mt-8">
+  <h2 class="font-bold text-lg mb-3">Cách sử dụng</h2>
+  <ol class="list-decimal pl-5 space-y-2 text-sm text-slate-600">
+   <li>Chọn loại nội dung muốn tạo.</li>
+   <li>Nhập chủ đề, từ khóa và đối tượng đọc.</li>
+   <li>Chọn phong cách và độ dài nội dung.</li>
+   <li>Nhấn Tạo nội dung.</li>
+   <li>Chỉnh sửa kết quả, sao chép hoặc tải xuống.</li>
+  </ol>
+  <p class="mt-4 text-xs text-amber-700 bg-amber-50 p-3 rounded-lg">
+   Lưu ý: Đây là công cụ tạo bản nháp theo mẫu và quy tắc lập trình, không sử dụng mô hình AI. Nội dung có thể lặp lại và cần được người dùng kiểm tra trước khi sử dụng.
+  </p>
+ </section>
+
+ <footer class="text-center text-sm text-slate-500 py-8">
+  AI Writing Tool © 2026 - Free Writing Assistant
+ </footer>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let currentContent = "";
+
+const tones = {
+ professional: "chuyên nghiệp, rõ ràng và đáng tin cậy",
+ friendly: "thân thiện, gần gũi và tự nhiên",
+ casual: "đơn giản, thoải mái và dễ hiểu",
+ formal: "trang trọng, lịch sự và chỉn chu",
+ funny: "vui vẻ, hài hước và dí dỏm",
+ persuasive: "thuyết phục, nhấn mạnh lợi ích",
+ educational: "mang tính chia sẻ kiến thức và hướng dẫn"
+};
+
+function getInputs(){
+ return {
+  type:$("contentType").value,
+  topic:$("topic").value.trim(),
+  keywords:$("keywords").value.trim(),
+  audience:$("audience").value.trim() || "mọi người",
+  tone:tones[$("tone").value],
+  length:$("length").value,
+  extra:$("extra").value.trim()
+ };
+}
+
+function clean(text){
+ return text.replace(/\s+/g," ").trim();
+}
+
+function makeKeywords(k){
+ return k ? k.split(/[,;，]+/).map(x=>x.trim()).filter(Boolean) : [];
+}
+
+function makeIntro(d){
+ const intros = [
+  `Trong cuộc sống hiện đại, ${d.topic} đang là một chủ đề được nhiều người quan tâm.`,
+  `Bạn đang tìm hiểu về ${d.topic}? Đây là một chủ đề đáng để chúng ta khám phá.`,
+  `${d.topic} mang đến nhiều điều đáng chú ý và có thể tạo ra những giá trị thiết thực.`,
+  `Hãy cùng tìm hiểu những điểm nổi bật liên quan đến ${d.topic} trong nội dung dưới đây.`
+ ];
+ return intros[Math.floor(Math.random()*intros.length)];
+}
+
+function makeBenefits(d){
+ const keys = makeKeywords(d.keywords);
+ if(keys.length){
+  return keys.map((k,i)=>`${i+1}. ${k.charAt(0).toUpperCase()+k.slice(1)}: Đây là một điểm đáng chú ý giúp nội dung trở nên phù hợp hơn với nhu cầu của ${d.audience}.`).join("\n\n");
+ }
+ return [
+  "1. Tính tiện lợi: Giúp tiết kiệm thời gian và công sức trong quá trình sử dụng.",
+  "2. Giá trị thực tế: Mang đến những lợi ích phù hợp với nhu cầu của người dùng.",
+  "3. Trải nghiệm: Hướng đến sự đơn giản, dễ tiếp cận và dễ sử dụng."
+ ].join("\n\n");
+}
+
+function makeCallToAction(d){
+ const actions = {
+  email:"Mong nhận được phản hồi từ bạn trong thời gian sớm nhất. Xin cảm ơn!",
+  blog:"Hy vọng những chia sẻ trên giúp bạn có thêm thông tin hữu ích. Hãy tiếp tục theo dõi để khám phá thêm nhiều nội dung mới.",
+  social:"Bạn nghĩ sao về chủ đề này? Hãy để lại bình luận và chia sẻ ý kiến nhé!",
+  caption:"Đừng bỏ lỡ nhé! ❤️",
+  title:"Khám phá ngay để tìm hiểu thêm!",
+  product:"Liên hệ ngay để được tư vấn thêm và lựa chọn sản phẩm phù hợp."
+ };
+ return actions[d.type];
+}
+
+function generateEmail(d){
+ return `TIÊU ĐỀ: ${d.topic}\n\nKính gửi ${d.audience},\n\n${makeIntro(d)}\n\n${makeBenefits(d)}\n\n${d.extra ? "Yêu cầu bổ sung: "+d.extra+"\n\n" : ""}${makeCallToAction(d)}\n\nTrân trọng,\n[Họ và tên]`;
+}
+
+function generateBlog(d){
+ return `${d.topic.toUpperCase()}\n\n${makeIntro(d)}\n\n1. Tổng quan về ${d.topic}\n${d.topic} là chủ đề có nhiều khía cạnh đáng quan tâm. Việc tìm hiểu kỹ sẽ giúp chúng ta có cái nhìn rõ ràng hơn và lựa chọn hướng tiếp cận phù hợp.\n\n2. Những điểm nổi bật\n${makeBenefits(d)}\n\n3. Lời khuyên và gợi ý\n- Tìm hiểu thông tin từ nhiều nguồn đáng tin cậy.\n- Xác định nhu cầu thực tế trước khi lựa chọn.\n- Ưu tiên những giải pháp phù hợp với điều kiện của bản thân.\n\n4. Kết luận\n${makeCallToAction(d)}\n\n${d.extra ? "Ghi chú: "+d.extra : ""}`;
+}
+
+function generateSocial(d){
+ return `✨ ${d.topic.toUpperCase()} ✨\n\n${makeIntro(d)}\n\n🌟 Những điểm đáng chú ý:\n${makeBenefits(d)}\n\n💬 ${makeCallToAction(d)}\n\n${makeKeywords(d.keywords).map(k=>"#"+k.replace(/\s+/g,"")).join(" ")}\n\n${d.extra}`;
+}
+
+function generateCaption(d){
+ const captions = [
+  `✨ ${d.topic} – Một lựa chọn đáng để bạn khám phá!\n\n${makeCallToAction(d)}`,
+  `🌟 Đừng bỏ lỡ ${d.topic}!\n\nNhững điều thú vị đang chờ bạn khám phá. ${makeCallToAction(d)}`,
+  `💖 ${d.topic}\n\nĐơn giản, thú vị và đáng trải nghiệm!\n\n${makeCallToAction(d)}`
+ ];
+ return captions[Math.floor(Math.random()*captions.length)];
+}
+
+function generateTitle(d){
+ const templates = [
+  `Khám phá ${d.topic}: Những điều bạn cần biết`,
+  `${d.topic} – Giải pháp đáng cân nhắc dành cho ${d.audience}`,
+  `5 điều thú vị về ${d.topic} mà bạn không nên bỏ qua`,
+  `Tìm hiểu ${d.topic}: Hướng dẫn từ cơ bản đến chi tiết`,
+  `Vì sao ${d.topic} đang được nhiều người quan tâm?`,
+  `${d.topic}: Lựa chọn phù hợp cho nhu cầu của bạn`
+ ];
+ return templates.join("\n");
+}
+
+function generateProduct(d){
+ return `✨ ${d.topic.toUpperCase()} ✨\n\nBạn đang tìm kiếm một sản phẩm phù hợp? ${d.topic} là nội dung đáng để bạn tham khảo.\n\n🌟 ĐIỂM NỔI BẬT\n${makeBenefits(d)}\n\n🎯 ĐỐI TƯỢNG PHÙ HỢP\nSản phẩm hướng đến ${d.audience}, đặc biệt là những người đang quan tâm đến các tiêu chí trên.\n\n📌 THÔNG TIN THÊM\n${d.extra || "Vui lòng liên hệ để được tư vấn chi tiết về sản phẩm."}\n\n🛒 Hãy tìm hiểu thêm để lựa chọn sản phẩm phù hợp với nhu cầu của bạn!`;
+}
+
+function generateContent(d){
+ switch(d.type){
+  case "email":return generateEmail(d);
+  case "blog":return generateBlog(d);
+  case "social":return generateSocial(d);
+  case "caption":return generateCaption(d);
+  case "title":return generateTitle(d);
+  case "product":return generateProduct(d);
+ }
+}
+
+function applyLength(text,length){
+ if(length==="short"){
+  return text.split("\n\n").slice(0,4).join("\n\n");
+ }
+ if(length==="long"){
+  return text+"\n\nGỢI Ý THÊM\n\n"+
+   `Để hiểu rõ hơn về ${$("topic").value.trim()}, bạn có thể tiếp tục tìm hiểu các khía cạnh liên quan, tham khảo kinh nghiệm thực tế và đối chiếu với nhu cầu của bản thân.\n\n`+
+   `Việc lựa chọn thông tin phù hợp sẽ giúp ${$("audience").value.trim() || "người đọc"} có thêm cơ sở để đưa ra quyết định.`;
+ }
+ return text;
+}
+
+function display(text){
+ currentContent=text;
+ $("result").value=text;
+ $("result").classList.remove("hidden");
+ $("emptyState").classList.add("hidden");
+ $("resultActions").classList.remove("hidden");
+ updateCount();
+}
+
+function updateCount(){
+ const text=$("result").value.trim();
+ const count=text ? text.split(/\s+/).length : 0;
+ $("wordCount").textContent=count.toLocaleString("vi-VN")+" từ";
+}
+
+function message(text,type="success"){
+ const box=$("message");
+ box.textContent=text;
+ box.className="mt-4 p-3 rounded-lg text-sm "+(
+  type==="error"?"bg-red-100 text-red-700":"bg-green-100 text-green-700"
+ );
+}
+
+function create(){
+ const d=getInputs();
+ if(!d.topic){
+  message("Vui lòng nhập chủ đề hoặc tên sản phẩm trước khi tạo nội dung.","error");
+  $("topic").focus();
+  return;
+ }
+ let text=generateContent(d);
+ text=applyLength(text,d.length);
+ if(d.extra && d.type!=="email" && d.type!=="product"){
+  text+="\n\nYêu cầu bổ sung: "+d.extra;
+ }
+ display(text);
+ message("Đã tạo bản nháp thành công!");
+}
+
+$("generateBtn").addEventListener("click",create);
+
+$("result").addEventListener("input",updateCount);
+
+$("copyBtn").addEventListener("click",async()=>{
+ try{
+  await navigator.clipboard.writeText($("result").value);
+  message("Đã sao chép nội dung!");
+ }catch{
+  $("result").select();
+  document.execCommand("copy");
+  message("Đã sao chép nội dung!");
+ }
+});
+
+$("downloadBtn").addEventListener("click",()=>{
+ const blob=new Blob([$("result").value],{type:"text/markdown;charset=utf-8"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;
+ a.download="noi-dung-da-tao.md";
+ a.click();
+ URL.revokeObjectURL(url);
+ message("Đã tải xuống nội dung!");
+});
+
+$("rewriteBtn").addEventListener("click",()=>{
+ const d=getInputs();
+ if(!d.topic)return;
+ const newText=generateContent(d);
+ display(newText);
+ message("Đã tạo một phiên bản bản nháp khác.");
+});
+
+$("expandBtn").addEventListener("click",()=>{
+ const old=$("result").value;
+ const topic=$("topic").value.trim();
+ if(!old)return;
+ display(old+"\n\nPHÂN TÍCH VÀ GỢI Ý MỞ RỘNG\n\n"+
+  `Một khía cạnh khác cần quan tâm khi tìm hiểu ${topic} là cách áp dụng vào thực tế. Người đọc nên xác định mục tiêu, xem xét các lựa chọn và đánh giá kết quả dựa trên nhu cầu cụ thể.\n\n`+
+  `Ngoài ra, việc tham khảo ý kiến từ những người có kinh nghiệm cũng có thể giúp bạn có thêm góc nhìn hữu ích.`);
+ message("Đã mở rộng bản nháp.");
+});
+
+$("shortenBtn").addEventListener("click",()=>{
+ const text=$("result").value;
+ if(!text)return;
+ const paragraphs=text.split(/\n\n+/);
+ const shortened=paragraphs.filter((p,i)=>i===0 || p.length>30).slice(0,5).join("\n\n");
+ display(shortened);
+ message("Đã rút gọn nội dung.");
+});
+
+</script>
+</body>
+</html>
